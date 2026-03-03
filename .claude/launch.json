@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Cotizador CAJIGA",
+      "runtimeExecutable": "/usr/bin/python3",
+      "runtimeArgs": ["/tmp/cotizador_server.py"],
+      "port": 3000
+    }
+  ]
+}

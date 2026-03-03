@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAJIGA — Cotizador de Closets</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23C9A96E'/><text y='.9em' font-size='70' x='50%' dominant-baseline='auto' text-anchor='middle' font-family='Arial' font-weight='bold' fill='%231C1C1E'>C</text></svg>" />
+</head>
+<body>
+
+  <!-- ── HEADER ──────────────────────────────────── -->
+  <header class="app-header">
+    <a class="header-logo" href="#">
+      <div class="logo-mark">C</div>
+      <div>
+        <div class="logo-text">CAJIGA</div>
+        <div class="logo-sub">COTIZADOR DE CLOSETS</div>
+      </div>
+    </a>
+
+    <div class="header-divider"></div>
+
+    <div class="header-proyecto">
+      <div id="header-proyecto">Nuevo Proyecto</div>
+      <div class="header-meta">
+        <span class="header-fuo-badge" id="header-fuo-badge">BÁSICO</span>
+        <span class="header-cot" id="header-cot">COT-2026-001</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-header btn-nueva" onclick="nuevaCotizacion()">🗒 Nueva Cotización</button>
+      <button class="btn-header btn-pdf"   onclick="exportarPDF()">⬇ PDF / Imprimir</button>
+    </div>
+  </header>
+
+  <!-- ── FUO SELECTOR ────────────────────────────── -->
+  <div class="fuo-section">
+    <div class="fuo-label">Nivel de proyecto (FUO)</div>
+    <div id="fuo-cards"></div>
+  </div>
+
+  <!-- ── MAIN ──────────────────────────────────────── -->
+  <main class="app-main">
+
+    <!-- Datos del proyecto -->
+    <div class="proyecto-panel">
+      <div class="panel-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? '' : 'none'">
+        <h3>📋 Datos del Proyecto</h3>
+        <span class="panel-toggle">▲ Colapsar</span>
+      </div>
+      <div class="proyecto-grid">
+        <div class="field-group">
+          <label>Nombre del Proyecto</label>
+          <input id="inp-nombre" type="text" placeholder="Ej: Closets Casa Lomas" />
+        </div>
+        <div class="field-group">
+          <label>Cliente</label>
+          <input id="inp-cliente" type="text" placeholder="Nombre del cliente" />
+        </div>
+        <div class="field-group">
+          <label>Fecha</label>
+          <input id="inp-fecha" type="date" />
+        </div>
+        <div class="field-group">
+          <label>Cotización #</label>
+          <input id="inp-numero" type="text" placeholder="COT-2026-001" />
+        </div>
+        <div class="field-group">
+          <label>Elaboró</label>
+          <input id="inp-elaboro" type="text" placeholder="Tu nombre" />
+        </div>
+        <div class="field-group">
+          <label>Vigencia</label>
+          <input id="inp-vigencia" type="text" placeholder="30 días" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <button class="btn-nueva-zona" onclick="agregarZona()">
+        ＋ Nueva Zona
+      </button>
+      <button class="btn-importar" onclick="abrirImportModal()">
+        📂 Importar Lista
+      </button>
+      <span class="toolbar-info">💡 Crea zonas (ej: "Vestidor", "Closet Principal") y agrega componentes en cada una.</span>
+    </div>
+
+    <!-- Zonas -->
+    <div id="zonas-container"></div>
+
+  </main>
+
+  <!-- ── BARRA RESUMEN ──────────────────────────────── -->
+  <div class="summary-bar">
+    <div class="summary-item">
+      <span class="summary-label">Piezas</span>
+      <span class="summary-value" id="res-piezas">0</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">Subtotal (sin IVA)</span>
+      <span class="summary-value" id="res-subtotal">$0</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">IVA 16%</span>
+      <span class="summary-value" id="res-iva">$0</span>
+    </div>
+    <div class="summary-item">
+      <span class="summary-label">TOTAL</span>
+      <span class="summary-value total" id="res-total">$0</span>
+    </div>
+    <div class="summary-spacer"></div>
+    <button class="btn-pdf-bar" onclick="exportarPDF()">
+      📄 Exportar Presupuesto
+    </button>
+  </div>
+
+  <!-- ── MODAL IMPORTAR LISTA ──────────────────────────────── -->
+  <div id="import-modal" class="import-modal">
+    <div class="import-modal-card">
+
+      <div class="import-modal-header">
+        <div class="import-modal-title">
+          <span class="import-modal-icon">📂</span>
+          <div>
+            <h2>Importar Lista de Componentes</h2>
+            <p>Carga un .txt o .pdf con tu lista hecha a mano y la agregamos automáticamente.</p>
+          </div>
+        </div>
+        <button class="import-close-btn" onclick="cerrarImportModal()">✕</button>
+      </div>
+
+      <!-- STEP 1: selección de fuente -->
+      <div id="import-step1" class="import-step">
+        <div class="import-cols">
+
+          <div class="import-col">
+            <div class="import-col-title">Cargar archivo</div>
+            <div id="import-drop-zone" class="import-drop-zone">
+              <div class="drop-icon">📄</div>
+              <div class="drop-title">Arrastra tu archivo aquí</div>
+              <div class="drop-sub">o haz clic para seleccionar</div>
+              <div class="drop-formats">.TXT &nbsp;•&nbsp; .PDF</div>
+              <div id="import-filename" class="drop-filename"></div>
+              <input id="import-file-input" type="file" accept=".txt,.pdf" style="display:none" />
+            </div>
+            <div id="import-status" class="import-status"></div>
+          </div>
+
+          <div class="import-divider"><span>o</span></div>
+
+          <div class="import-col">
+            <div class="import-col-title">Pegar texto directamente</div>
+            <textarea id="import-text-area" class="import-textarea"
+              placeholder="Ejemplo:&#10;&#10;VESTIDOR&#10;V1 PISO CON ZOCLO 60x240 NOGAL 1&#10;V1 PARAL 2 VISTAS 30x240 NOGAL 2&#10;V2 ENTREPAÑO 80x30 ENCINO 3&#10;&#10;CLOSET BAÑO&#10;V1 CAJÓN 60x20 NOGAL 55 2&#10;V1 PUERTA ABATIBLE 60x240 NOGAL 1"></textarea>
+            <button class="btn-parse" onclick="procesarTextoDirecto()">
+              🔍 Analizar texto
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- STEP 2: preview editable -->
+      <div id="import-step2" class="import-step" style="display:none">
+        <div class="import-step2-header">
+          <div class="import-step2-info">
+            <span id="import-count">0 componentes</span>
+            <span class="import-hint">Revisa y ajusta antes de importar. Puedes editar cualquier campo.</span>
+          </div>
+          <button class="btn-back-import" onclick="resetImportModal()">← Volver</button>
+        </div>
+        <div id="import-preview-container" class="import-preview-container"></div>
+      </div>
+
+      <div class="import-modal-footer">
+        <button class="btn-cancel-import" onclick="cerrarImportModal()">Cancelar</button>
+        <button id="import-confirm-btn" class="btn-confirm-import" onclick="confirmarImport()" disabled>
+          ✓ Importar al Cotizador
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SCRIPTS ────────────────────────────────────── -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/import.js"></script>
+
+</body>
+</html>
